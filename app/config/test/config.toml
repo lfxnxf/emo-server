@@ -1,0 +1,233 @@
+env = "test"
+image_dir = "/tmp/images"
+image_url = "https://image.cestc-yd.cn"
+cec_image_url = "https://oss-cc-wuhan-2.cecloudcs.com"
+image_tag="ali"
+
+[server]
+    service_name="api"
+    port = 10000
+    mode = "test"
+
+[wechat_program]
+    app_id = "wxb929771a74b4f206"
+    app_secret = "0bae1efe49e35fc755ac498ad0de6f09"
+    mch_id = "1625478145"
+    mch_certificate_serial_number = "5B85BBC7925F755174B2347E7836583F151E4346"
+    mch_ap_iv_3_key = "64288e9be428a4f55218551f88f3de91"
+    private_key_path = "/pem/apiclient_key.pem"
+    pay_notify_url = "https://testapi.cestc-yd.cn/api/pay/notify"
+    refund_notify_url = "https://testapi.cestc-yd.cn/api/refund/notify"
+
+[ali]
+    access_key_id = "LTAI5tLmSst6rf38qm7qg8QR"
+    access_key_secret = "eTmoQydRXhI9MlGakxrnarzRkhyGo1"
+
+[cec]
+    access_key_id = "jAmQ294I89uS6j4rrLzv"
+    access_key_secret = "OZwjqeu02ZtYuxZsV8G2eOov2Nv8Anit5yUthkiI"
+
+[ali_oss_conf]
+    endpoint = "oss-cn-zhangjiakou-internal.aliyuncs.com"
+    bucket_name = "meta-sports-image"
+
+[cec_oss_conf]
+    endpoint = "oss-cc-wuhan-2-internal.cecloudcs.com"
+    bucket_name = "meta-sports-image"
+
+[log]
+    succ_stat_code=[]
+    rotate="day"
+    storage_day=7
+
+[[database]]
+    name="api.db"
+    master = "root:^dviFrBo5oO722QG@tcp(rm-8vb8yn305p65o8kws.mysql.zhangbei.rds.aliyuncs.com:3306)/meta-sports?parseTime=true&loc=Local&readTimeout=10s&max_idle=500&max_active=100&max_lifetime_sec=14400&charset=utf8mb4&collation=utf8mb4_unicode_ci"
+    slaves = ["root:^dviFrBo5oO722QG@tcp(rm-8vb8yn305p65o8kws.mysql.zhangbei.rds.aliyuncs.com:3306)/meta-sports?parseTime=true&loc=Local&readTimeout=10s&max_idle=500&max_active=100&max_lifetime_sec=14400&charset=utf8mb4&collation=utf8mb4_unicode_ci"]
+
+[[redis]]
+    name="api.redis"
+    host="r-8vbkd2x7rmj1hc94ln.redis.zhangbei.rds.aliyuncs.com:6379"
+    pass="okNz3ILnD778rxkL"
+    max_idle=1000
+    database=0
+    max_retries=3
+    dial_timeout=1000
+    idle_timeout=1000
+    read_timeout=5000
+    write_timeout=5000
+
+[[redis]]
+    name="wechat.redis"
+    host="r-8vbkd2x7rmj1hc94lnpd.redis.zhangbei.rds.aliyuncs.com:6379"
+    pass="okNz3ILnD778rxkL"
+    max_idle=1000
+    database=2
+    max_retries=3
+    dial_timeout=1000
+    idle_timeout=1000
+    read_timeout=5000
+    write_timeout=5000
+
+[[kafka_producer_client]]
+    producer_to = "kafka_pro"
+    kafka_broken = "alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    retry_max = 3
+    get_error = true
+    get_success = true
+    required_acks = "WaitForAll"
+    use_sync = true
+
+#订单支付回调
+[[kafka_consume]]
+    consume_from="order_pay_notify_consumer"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_order_pay_notify"
+    group = "test.order.pay.notify.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#订单退款回调
+[[kafka_consume]]
+    consume_from="order_refund_notify_consumer"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_order_refund_notify"
+    group = "test.order.refund.notify.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#订单取消
+[[kafka_consume]]
+    consume_from="order_timeout_consumer"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_order_timeout"
+    group = "test.order.timeout.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#订单退款
+[[kafka_consume]]
+    consume_from="order_start_refund_consumer"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_start_order_refund"
+    group = "test.start.order.refund.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#课程取消
+[[kafka_consume]]
+    consume_from="course_cancel_after_consumer"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_course_cancel_after"
+    group = "test.course.cancel.after.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#启动设备
+[[kafka_consume]]
+    consume_from="start_app_consumer"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_start_app"
+    group = "test.start.app.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#运动数据
+[[kafka_consume]]
+    consume_from="sport_record_consumer"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_sport_record_report"
+    group = "test.sport.record.notify.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#赛事数据变更
+[[kafka_consume]]
+    consume_from="competition_change_event"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_competition_change_event"
+    group = "platform.test.cometition.change.event.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#赛事取消
+[[kafka_consume]]
+    consume_from="competition_cancel"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_competition_cancel"
+    group = "platform.test.cometition.cancel.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#赛事晋级
+[[kafka_consume]]
+    consume_from="competition_user_promotion"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_competition_user_promotion"
+    group = "platform.test.cometition.promotion.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#赛事用户上榜
+[[kafka_consume]]
+    consume_from="competition_join_ranking"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_competition_join_ranking"
+    group = "platform.test.cometition.join.ranking.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#消息推送
+[[kafka_consume]]
+    consume_from="message_push"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_message_push"
+    group = "platform.test.message.push.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#设备在线状态更改
+[[kafka_consume]]
+    consume_from="device_online_status_edit"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_device_online_status_edit"
+    group = "platform.test.device.online.status.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true
+
+#部门组织机构代码修改
+[[kafka_consume]]
+    consume_from="department_org_no_edit"
+    kafka_broken="alikafka-pre-cn-zvp2q8dv1007-1-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-2-vpc.alikafka.aliyuncs.com:9092,alikafka-pre-cn-zvp2q8dv1007-3-vpc.alikafka.aliyuncs.com:9092"
+    topic = "topic_department_org_no_edit"
+    group = "platform.test.department.edit.group"
+    worker_number = 8
+    init_offset=-2
+    get_error=true
+    get_success=true

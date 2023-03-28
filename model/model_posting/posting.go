@@ -1,0 +1,74 @@
+package model_posting
+
+import "time"
+
+const (
+	_      = iota
+	ScoreS //S
+	ScoreA //A
+	ScoreB //B
+	ScoreC //C
+)
+
+const (
+	PostingTypeNormal   = 1 // 普通
+	PostingTypeBoutique = 2 // 精选
+)
+
+const (
+	PostingAuditStatusNotStart = 1 // 审核中
+	PostingAuditStatusPass     = 2 // 审核通过
+	PostingAuditStatusUnPass   = 3 // 审核未通过
+)
+
+const (
+	PostingStatusUnPublish = 1   // 未发布
+	PostingStatusPublished = 2   // 已发布
+	PostingStatusDeleted   = 101 // 删除
+)
+
+const (
+	PostingAttributeNormal = 1 // 自然
+	PostingAttributeRobot  = 2 // 马甲
+)
+
+const (
+	TablePosting = "posting"
+)
+
+// Posting 帖子表
+type Posting struct {
+	Id              int64     `gorm:"column:id" json:"id"`                                 //自增id
+	Uid             int64     `gorm:"column:uid" json:"uid"`                               //用户id
+	Content         string    `gorm:"column:content" json:"content"`                       //帖子内容
+	Images          string    `gorm:"column:images" json:"images"`                         //图片
+	Score           int64     `gorm:"column:score" json:"score"`                           //质量分，1:S,2:A,3:B,4:C
+	Attribute       int64     `gorm:"column:attribute" json:"attribute"`                   //属性，1：自然贴，2：马甲贴
+	PostingType     int64     `gorm:"column:posting_type" json:"posting_type"`             //类型，1：普通，2：精选
+	AuditStatus     int64     `gorm:"column:audit_status" json:"audit_status"`             //审核状态，1：未审核，2：审核成功，10：审核失败
+	AuditFailReason string    `gorm:"column:audit_fail_reason" json:"audit_fail_reason"`   //审核失败原因
+	Status          int64     `gorm:"column:status" json:"status"`                         //状态，1：未发布，2:已发布，101:已删除
+	CreateTime      time.Time `gorm:"column:create_time; default:null" json:"create_time"` //创建时间
+}
+
+func (p *Posting) TableName() string {
+	return TablePosting
+}
+
+func (p *Posting) ScoreText() string {
+	scoreMap := map[int64]string{
+		ScoreS: "S",
+		ScoreA: "A",
+		ScoreB: "B",
+		ScoreC: "C",
+	}
+	return scoreMap[p.Score]
+}
+
+func (p *Posting) TypeText() string {
+	typeMap := map[int64]string{
+		PostingTypeNormal:   "普通",
+		PostingTypeBoutique: "精选",
+	}
+	return typeMap[p.PostingType]
+}

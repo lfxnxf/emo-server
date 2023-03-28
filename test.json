@@ -1,0 +1,57 @@
+{
+  "error": 0,
+  "msg": "",
+  "data": {
+    "order_data": {
+      "month_amount": "1",
+      "month_ring_ratio": "0.12",
+      "year_amount": "",
+      "year_ring_ratio": "",
+      "month_yo_y": "",
+      "week_line_chart": [
+        {
+          "x":"1",
+          "y":"2"
+        }
+      ],
+      "month_line_chart": [
+        {
+          "x":"1",
+          "y":"2"
+        }
+      ],
+      "year_line_chart": [
+        {
+          "x":"1",
+          "y":"2"
+        }
+      ]
+    },
+    "course_data": {
+      "month_count": 1,
+      "month_ring_ratio": "",
+      "year_count": 2,
+      "private_course_ratio": ""
+    },
+    "users_data": {
+      "month_count": 1,
+      "month_ring_ratio": "",
+      "all_count": 1,
+      "week_line_chart": [
+        {
+          "x":"1",
+          "y":"2"
+        }
+      ]
+    },
+    "competition_data": {
+      "record_heat_list": [
+        {
+          "city": 1,
+          "city_name": "",
+          "num": 1
+        }
+      ]
+    }
+  }
+}

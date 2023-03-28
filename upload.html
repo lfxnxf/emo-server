@@ -1,0 +1,52 @@
+<meta charset="utf-8">
+<form method="post" name="form" id="formId">
+    <table>
+        <tr>
+            <td>名称：</td>
+            <td><input type="text" id="title" name="entity.title" class="input"></td>
+        </tr>
+        <tr>
+            <td>图片：</td>
+            <td>
+                <input type="file" id="file" name="file"/>
+
+                <input type="hidden" id="file" name="entity.imgUrl"
+                       value="<s:property value='entity.imgUrl'/>">
+
+                <input type="hidden" id="import_type" name="import_type" value="device">
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="button" onclick="doSubmit()" value="提交"/>
+                <input type="reset" value="取消">
+            </td>
+        </tr>
+    </table>
+</form>
+
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script>
+    function doSubmit() {
+        var formData = new FormData();
+        formData.append("file", $("#file")[0].files[0])
+        formData.append("import_type", $("#import_type").val())
+        $.ajax({
+            url: "http://127.0.0.1:10000/api/admin/import_excel",
+            type: 'POST',
+            cache: false, //上传文件不需要缓存
+            async: true,
+            data: formData,
+            processData: false, // 此处是关键：告诉jQuery不要去处理发送的数据
+            contentType: false, // 此处是关键：告诉jQuery不要去设置Content-Type请求头
+            dataType: "JSON",
+            success: function (data) {
+                //处理成功后动作，比如调转window.location.href ='/list'
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert(errorThrown);
+            }
+        });
+    }
+</script>
