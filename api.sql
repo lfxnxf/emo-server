@@ -47,7 +47,7 @@ CREATE TABLE `posting_subject`
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY           idx_posting_id_uid(`posting_id`, `uid`),
-    KEY           idx_subject_id(`subject_id`),
+    KEY           idx_subject_id(`subject_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='话题帖子关联表';
 
 CREATE TABLE `subject`
@@ -60,27 +60,25 @@ CREATE TABLE `subject`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='话题表';
 
-CREATE TABLE `posting_like_record`
+CREATE TABLE `like_record`
 (
-    `id`          bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-    `uid`         bigint    not null default 0 comment '用户id',
-    `posting_id`  bigint    not null default 0 comment '帖子id',
-    `status`      tinyint   not null default 0 comment '状态，1:已点赞，101:已取消',
-    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `id`            bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+    `uid`           bigint    not null default 0 comment '用户id',
+    `business_type` tinyint   not null default 0 comment '点赞类型，1：帖子，2：帖子评论，3：评论回复',
+    `business_id`   bigint    not null default 0 comment '根据类型获取不同id',
+    `status`        tinyint   not null default 0 comment '状态，1:已点赞，101:已取消',
+    `create_time`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    KEY           idx_posting_id_uid(`posting_id`, `uid`),
-    KEY           idx_uid(`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='帖子点赞记录表';
+    KEY             idx_posting_id_uid(`posting_id`, `uid`),
+    KEY             idx_uid(`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='点赞记录表';
 
 CREATE TABLE `posting_comment`
 (
     `id`                bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-    `code`              varchar(128) not null default '' comment '评论编号',
     `uid`               bigint       not null default 0 comment '用户id',
     `posting_id`        bigint       not null default 0 comment '帖子id',
-    `pid`               bigint       not null default 0 comment '父级id',
-    `level`             tinyint      not null default 0 comment '代表第几级评论',
     `attribute`         tinyint      not null default 0 comment '属性，1：自然人，2：马甲人',
     `content`           text null comment '评论内容',
     `audit_status`      tinyint      not null default 0 comment '审核状态，1：未审核，2：审核通过，10：审核未通过',
@@ -93,42 +91,38 @@ CREATE TABLE `posting_comment`
     KEY                 idx_uid(`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论表';
 
-CREATE TABLE `posting_comment_like_record`
+CREATE TABLE `posting_comment_reply`
 (
     `id`                 bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-    `uid`                bigint    not null default 0 comment '用户id',
-    `posting_id`         bigint    not null default 0 comment '帖子id',
-    `posting_comment_id` bigint    not null default 0 comment '评论id',
-    `status`             tinyint   not null default 0 comment '状态，1:已点赞，101:已取消',
-    `create_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `posting_id`         bigint       not null default 0 comment '帖子id',
+    `comment_id`         bigint       not null default 0 comment '评论id',
+    `thread_starter_uid` bigint       not null default 0 comment '楼主uid',
+    `sender`             bigint       not null default 0 comment '用户id',
+    `receiver`           bigint       not null default 0 comment '被回复用户id',
+    `receive_reply_id`   bigint       not null default 0 comment '被回复内容id',
+    `attribute`          tinyint      not null default 0 comment '属性，1：自然人，2：马甲人',
+    `content`            text null comment '回复内容',
+    `audit_status`       tinyint      not null default 0 comment '审核状态，1：未审核，2：审核通过，10：审核未通过',
+    `audit_fail_reason`  varchar(512) not null default '' comment '审核未通过原因',
+    `status`             tinyint      not null default 0 comment '状态，1：未发布，2:已发布，101:已删除',
+    `create_time`        timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`        timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    KEY                  idx_posting_id_uid(`posting_id`, `uid`),
-    KEY                  idx_uid(`uid`),
-    KEY                  idx_posting_comment_id(`posting_comment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='帖子评论点赞记录表';
+    KEY                  idx_comment(`comment_id`),
+    KEY                  idx_receive_reply_id(`receive_reply_id`),
+    KEY                  idx_sender(`sender`),
+    KEY                  idx_sender(`receiver`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论回复表';
 
 CREATE TABLE `posting_statistics`
 (
     `id`              bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-    `posting_id`      bigint    not null default 0 comment '帖子id',
+    `business_type`   tinyint   not null default 0 comment '点赞类型，1：帖子，2：帖子评论，3：评论回复',
+    `business_id`     bigint    not null default 0 comment '根据类型获取不同id',
     `statistics_type` tinyint   not null default 0 comment '统计类型，1：自然人点赞数量，2：全部点赞数量，3：自然人评论数量，4：全部评论数量',
     `num`             int       not null default 0 comment '数量',
     `create_time`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    KEY               idx_posting_id_statistics_type(`posting_id`, `statistics_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='帖子统计表';
-
-CREATE TABLE `posting_comment_statistics`
-(
-    `id`                 bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-    `posting_id`         bigint    not null default 0 comment '帖子id',
-    `posting_comment_id` bigint    not null default 0 comment '评论id',
-    `statistics_type`    tinyint   not null default 0 comment '统计类型，1：自然人点赞数量，2：全部点赞数量，3：自然人评论数量，4：全部评论数量',
-    `num`                int       not null default 0 comment '数量',
-    `create_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`),
-    KEY                  idx_posting_comment_statistics(`posting_comment_id`, `statistics_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='帖子评论统计表';
+    KEY               idx_business_type_statistics(`business_id`, `business_type`, `statistics_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='帖子相关统计表';
