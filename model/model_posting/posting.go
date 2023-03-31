@@ -26,7 +26,7 @@ type Posting struct {
 	Content         string    `gorm:"column:content" json:"content"`                       //帖子内容
 	Images          string    `gorm:"column:images" json:"images"`                         //图片
 	Score           int64     `gorm:"column:score" json:"score"`                           //质量分，1:S,2:A,3:B,4:C
-	Attribute       int64     `gorm:"column:attribute" json:"attribute"`                   //属性，1：自然贴，2：马甲贴
+	UserType        int64     `gorm:"column:user_type" json:"user_type"`                   //1：自然贴，2：马甲贴
 	PostingType     int64     `gorm:"column:posting_type" json:"posting_type"`             //类型，1：普通，2：精选
 	AuditStatus     int64     `gorm:"column:audit_status" json:"audit_status"`             //审核状态，1：未审核，2：审核成功，10：审核未通过
 	AuditFailReason string    `gorm:"column:audit_fail_reason" json:"audit_fail_reason"`   //审核失败原因
@@ -54,4 +54,13 @@ func (p *Posting) TypeText() string {
 		PostingTypeBoutique: "精选",
 	}
 	return typeMap[p.PostingType]
+}
+
+type SearchPosting struct {
+	Posting
+	Nickname        string `json:"nickname" gorm:"column:nickname"`
+	Subjects        string `json:"subjects" gorm:"column:subjects"`
+	LikeNum         int64  `json:"like_num" gorm:"column:like_num"`
+	HumanCommentNum int64  `json:"human_comment_num" gorm:"column:human_comment_num"`
+	AllCommentNum   int64  `json:"all_comment_num" gorm:"column:all_comment_num"`
 }

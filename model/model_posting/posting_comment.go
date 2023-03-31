@@ -11,7 +11,7 @@ type PostingComment struct {
 	ID              int64     `gorm:"column:id" json:"id"`                                 // 自增id
 	Uid             int64     `gorm:"column:uid" json:"uid"`                               // 用户id
 	PostingId       int64     `gorm:"column:posting_id" json:"posting_id"`                 // 帖子id
-	Attribute       int64     `gorm:"column:attribute" json:"attribute"`                   // 属性，1：自然人，2：马甲人
+	UserType        int64     `gorm:"column:user_type" json:"user_type"`                   // 属性，1：自然人，2：马甲人
 	Content         string    `gorm:"column:content" json:"content"`                       // 评论内容
 	AuditStatus     int64     `gorm:"column:audit_status" json:"audit_status"`             // 审核状态，1：未审核，2：审核通过，10：审核未通过
 	AuditFailReason string    `gorm:"column:audit_fail_reason" json:"audit_fail_reason"`   // 审核未通过原因

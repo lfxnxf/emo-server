@@ -30,7 +30,7 @@ type Users struct {
 	Portrait     string    `gorm:"column:portrait" json:"portrait"`                     //  头像
 	Introduction string    `gorm:"column:introduction" json:"introduction"`             //  简介
 	Token        string    `gorm:"column:token" json:"token"`                           //  token
-	UsersType    int64     `gorm:"column:users_type" json:"users_type"`                 //  1：自然用户，2：马甲用户
+	UserType     int64     `gorm:"column:user_type" json:"user_type"`                   //  1：自然用户，2：马甲用户
 	LoginTime    int64     `gorm:"column:login_time" json:"login_time"`                 //  登录时间
 	CreateTime   time.Time `gorm:"column:create_time; default:null" json:"create_time"` //  创建时间
 }

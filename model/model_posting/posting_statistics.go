@@ -16,9 +16,9 @@ const (
 const (
 	_                    = iota
 	TypeNormalThumbNum   // 自然人点赞数量
-	TypeRobotThumbNum    // 马甲人点赞数量
+	TypeAllThumbNum      // 全部点赞数量
 	TypeNormalCommentNum // 自然人评论数量
-	TypeRobotCommentNum  // 马甲人评论数量
+	TypeAllCommentNum    // 全部评论数量
 )
 
 // PostingStatistics  帖子相关统计表
