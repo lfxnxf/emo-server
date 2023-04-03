@@ -3,11 +3,18 @@ package service
 import (
 	"context"
 	"github.com/lfxnxf/emo-frame/logging"
+	"github.com/lfxnxf/emo-frame/resource/redis/dispersed_lock"
 	"github.com/lfxnxf/emo-frame/utils"
+	"github.com/lfxnxf/emo-server/api/err_code"
 	"github.com/lfxnxf/emo-server/model"
 	"github.com/lfxnxf/emo-server/model/model_posting"
 	"go.uber.org/zap"
 	"strings"
+)
+
+const (
+	RefineOrCancelLockKey   = "posting:refine_or_cancel:lock"
+	RefineOrCancelKeyExpire = 1
 )
 
 // AddPosting 新增帖子
@@ -48,6 +55,7 @@ func (s *Service) GetAllSubject(ctx context.Context) (interface{}, error) {
 	return model_posting.GetAllSubjectReply{List: subject}, nil
 }
 
+// SearchPosting 搜索帖子
 func (s *Service) SearchPosting(ctx context.Context, req model_posting.SearchPostingReq) (interface{}, error) {
 	log := logging.For(ctx, "func", "SearchPosting",
 		zap.Any("req", req),
@@ -121,4 +129,39 @@ func (s *Service) SearchPosting(ctx context.Context, req model_posting.SearchPos
 
 	log.Infow("success!")
 	return resp, nil
+}
+
+// RefineOrCancelPosting 加精/取消
+func (s *Service) RefineOrCancelPosting(ctx context.Context, req model_posting.RefineOrCancelPostingReq) (interface{}, error) {
+	log := logging.For(ctx, "func", "RefineOrCancelPosting",
+		zap.Any("req", req),
+	)
+
+	//分布式锁
+	dispersedLock := dispersed_lock.New(ctx, s.dao.GetCacheClient(), RefineOrCancelLockKey, RefineOrCancelKeyExpire)
+	if !dispersedLock.Lock(ctx) {
+		return nil, err_code.ErrorOperateOften
+	}
+	defer dispersedLock.Unlock(ctx)
+
+	posting, err := s.dao.FetchOnePosting(ctx, req.PostingId)
+	if err != nil {
+		log.Errorw("s.dao.FetchOnePosting error", zap.Error(err))
+		return nil, err
+	}
+
+	if req.Status == model_posting.StatusRefine {
+		posting.PostingType = model_posting.PostingTypeBoutique
+	} else {
+		posting.PostingType = model_posting.PostingTypeNormal
+	}
+
+	err = s.dao.EditPosting(ctx, nil, posting)
+	if err != nil {
+		log.Errorw("s.dao.EditPosting error", zap.Error(err))
+		return nil, err
+	}
+
+	log.Infow("success!")
+	return nil, nil
 }

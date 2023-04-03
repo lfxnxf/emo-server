@@ -309,6 +309,7 @@ github.com/lfxnxf/emo-frame/resource/kafka
 github.com/lfxnxf/emo-frame/resource/kafka/core/config
 github.com/lfxnxf/emo-frame/resource/kafka/core/consumergroup
 github.com/lfxnxf/emo-frame/resource/redis
+github.com/lfxnxf/emo-frame/resource/redis/dispersed_lock
 github.com/lfxnxf/emo-frame/resource/sql
 github.com/lfxnxf/emo-frame/resource/sql/trace
 github.com/lfxnxf/emo-frame/rolling

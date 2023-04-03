@@ -49,3 +49,13 @@ type AdminPostingInfo struct {
 	PostingType     int64    `json:"posting_type"`
 	PostingTypeText string   `json:"posting_type_text"`
 }
+
+const (
+	StatusRefine       = 1
+	StatusCancelRefine = 2
+)
+
+type RefineOrCancelPostingReq struct {
+	PostingId int64 `json:"posting_id"`
+	Status    int64 `json:"status"`
+}
